@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Квест-квиз: Бутырский район и Марьина Роща</title>
+  <style>
+    :root {
+      --bg: #101114;
+      --card: #1b1d22;
+      --card2: #24272e;
+      --text: #f2f0e9;
+      --muted: #b8b3a7;
+      --accent: #d69a42;
+      --blue: #607d9f;
+      --green: #4f8f68;
+      --red: #9c3f3f;
+      --line: rgba(255,255,255,0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(214,154,66,0.16), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(96,125,159,0.16), transparent 34%),
+        linear-gradient(180deg, #121318, #0c0d10);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app { width: min(960px, 100%); }
+
+    .card {
+      background: linear-gradient(180deg, rgba(36,39,46,0.98), rgba(22,24,29,0.98));
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: 0 26px 80px rgba(0,0,0,0.48);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 34px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(214,154,66,0.14), transparent),
+        linear-gradient(180deg, rgba(255,255,255,0.045), transparent);
+    }
+
+    .kicker {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+
+    h1 {
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.03;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+      max-width: 790px;
+    }
+
+    .content { padding: 30px 34px 34px; }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.045);
+      border-radius: 16px;
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .pill strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .place {
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: clamp(24px, 4vw, 38px);
+      margin-bottom: 14px;
+    }
+
+    .question {
+      font-size: 22px;
+      line-height: 1.35;
+      margin: 18px 0 20px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 0;
+      border-radius: 16px;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .option {
+      text-align: left;
+      padding: 16px 18px;
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .option:hover { transform: translateY(-1px); background: rgba(255,255,255,0.09); }
+    .option.correct { border-color: rgba(79,143,104,0.9); background: rgba(79,143,104,0.18); }
+    .option.wrong { border-color: rgba(156,63,63,0.95); background: rgba(156,63,63,0.18); }
+    .option:disabled { cursor: default; opacity: 0.88; }
+
+    .block {
+      display: none;
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.18);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .block.visible { display: block; }
+
+    .label {
+      color: var(--accent);
+      font-weight: 900;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .block p, .intro-text p {
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+
+    .hint-link {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--text);
+      background: rgba(214,154,66,0.12);
+      border: 1px solid rgba(214,154,66,0.35);
+      padding: 11px 14px;
+      border-radius: 14px;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #17110a;
+      padding: 14px 20px;
+      font-weight: 900;
+    }
+
+    .secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+      padding: 14px 20px;
+      font-weight: 800;
+    }
+
+    .primary:hover, .secondary:hover { transform: translateY(-1px); }
+
+    .progress {
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #f2c77d);
+      transition: width 0.25s ease;
+    }
+
+    .score {
+      color: var(--muted);
+      margin-top: 12px;
+      font-size: 15px;
+    }
+
+    .route {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 16px 0 4px;
+    }
+
+    .route span {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+      font-size: 13px;
+      border: 1px solid var(--line);
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 720px) {
+      body { padding: 12px; }
+      .hero, .content { padding: 24px; }
+      .meta { grid-template-columns: 1fr; }
+      .question { font-size: 19px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="card">
+      <div class="hero">
+        <div class="kicker">Городской квест-квиз</div>
+        <h1>Бутырка и Марьина Роща: тень инженера</h1>
+        <p class="subtitle">Маршрут про железную дорогу, заводы, криминальные легенды и новую городскую Москву. Вопросы открываются один за другим.</p>
+      </div>
+
+      <div class="content" id="screen"></div>
+    </section>
+  </main>
+
+  <script>
+    const quiz = [
+      {
+        place: "Точка 1 — Савёловский вокзал",
+        title: "Железная дорога и север Москвы",
+        instruction: "Идите к Савёловскому вокзалу. Это стартовая точка маршрута.",
+        question: "Почему вокруг Савёловского вокзала быстро выросли фабрики, склады и мастерские?",
+        options: [
+          "Здесь была большая река",
+          "Сюда пришла железная дорога",
+          "Здесь находился царский дворец",
+          "Здесь добывали уголь"
+        ],
+        correct: 1,
+        explanation: "Железная дорога изменила север Москвы. Вокруг вокзала появились склады, мастерские, промышленные дворы и рабочие кварталы. Так Бутырский район постепенно получил индустриальный характер.",
+        hint: "Следующая точка связана с названием всего района. Ищите длинную городскую улицу, которая тянется вдоль северной промышленной Москвы.",
+        imageLabel: "Google Images — Бутырская улица",
+        imageUrl: "https://www.google.com/search?tbm=isch&q=Бутырская+улица+Москва"
+      },
+      {
+        place: "Точка 2 — Бутырская улица",
+        title: "Рабочая Москва",
+        instruction: "Найдите Бутырскую улицу — одну из главных осей района.",
+        question: "Почему Бутырская улица долго воспринималась как рабочая и промышленная часть Москвы?",
+        options: [
+          "Здесь стояли дворцы",
+          "Здесь жили только купцы",
+          "Вокруг были заводы, склады и мастерские",
+          "Здесь находился университет"
+        ],
+        correct: 2,
+        explanation: "В XIX–XX веках рядом с железной дорогой концентрировались заводы, склады и ремонтные мастерские. Это была не парадная Москва, а город труда, транспорта и промышленных шумов.",
+        hint: "Следующее место тоже связано с Бутыркой, но известно не заводами. Ищите здание с высокими стенами, башнями и тюремной репутацией.",
+        imageLabel: "Google Images — Бутырская тюрьма",
+        imageUrl: "https://www.google.com/search?tbm=isch&q=Бутырская+тюрьма+Москва"
+      },
+      {
+        place: "Точка 3 — Бутырская тюрьма",
+        title: "Стены, которые знают слишком много",
+        instruction: "Подойдите к району Бутырской тюрьмы. Не нужно заходить внутрь: достаточно внешнего осмотра.",
+        question: "Почему Бутырка стала известной далеко за пределами района?",
+        options: [
+          "Это один из самых известных тюремных комплексов России",
+          "Здесь был главный рынок Москвы",
+          "Здесь находился царский театр",
+          "Здесь чеканили монеты"
+        ],
+        correct: 0,
+        explanation: "Бутырская тюрьма стала одним из самых узнаваемых тюремных символов Москвы. С ней связаны политические, криминальные и литературные сюжеты. В квесте это точка старой тяжелой городской памяти.",
+        hint: "Дальше нужен резкий контраст: бывший завод, который стал модным городским пространством. Его легко узнать по индустриальной архитектуре и круглой башне.",
+        imageLabel: "Google Images — Хлебозавод №9",
+        imageUrl: "https://www.google.com/search?tbm=isch&q=Хлебозавод+9+Москва"
+      },
+      {
+        place: "Точка 4 — Хлебозавод №9",
+        title: "Завод, который стал городом внутри города",
+        instruction: "Идите к Хлебозаводу №9.",
+        question: "Что раньше производили на Хлебозаводе?",
+        options: [
+          "Автомобили",
+          "Газеты",
+          "Хлеб",
+          "Поезда"
+        ],
+        correct: 2,
+        explanation: "Хлебозавод №9 — пример промышленной архитектуры, получившей новую жизнь. Там, где раньше производили хлеб, теперь находятся кафе, магазины, офисы и общественные пространства.",
+        hint: "Следующая часть маршрута — соседний район с историей старых трактиров, рынков и криминальной репутации. Ищите название, в котором есть слово «роща».",
+        imageLabel: "Google Images — Марьина Роща",
+        imageUrl: "https://www.google.com/search?tbm=isch&q=Марьина+Роща+Москва"
+      },
+      {
+        place: "Точка 5 — Марьина Роща",
+        title: "Репутация старого района",
+        instruction: "Перейдите в район Марьина Роща.",
+        question: "Почему Марьина Роща долго имела репутацию неблагополучного района?",
+        options: [
+          "Здесь были болота и пустыри",
+          "Здесь находились дешёвые трактиры, рынки и криминальная среда",
+          "Здесь был кремль",
+          "Здесь жили только военные"
+        ],
+        correct: 1,
+        explanation: "Марьина Роща долго воспринималась как окраинная и неспокойная часть Москвы. С ней связывали дешёвые трактиры, рынки и криминальные истории. Сейчас район сильно изменился: метро, новые дома, офисы и культурные пространства изменили его образ.",
+        hint: "Финальная точка тоже выросла из старой промышленности. Ищите бывший завод, который стал символом креативной Москвы: кирпич, стекло, граффити, дворы и события.",
+        imageLabel: "Google Images — Флакон Москва",
+        imageUrl: "https://www.google.com/search?tbm=isch&q=Флакон+Москва+дизайн+завод"
+      },
+      {
+        place: "Финал — Дизайн-завод Флакон",
+        title: "Новая жизнь старой промышленности",
+        instruction: "Дойдите до дизайн-завода Флакон.",
+        question: "Что лучше всего показывает финальная точка маршрута?",
+        options: [
+          "Как старые промышленные зоны превращаются в новые городские пространства",
+          "Как Москва возвращается к деревянной застройке",
+          "Как исчезла железная дорога",
+          "Как район стал сельским"
+        ],
+        correct: 0,
+        explanation: "Флакон — пример того, как бывшая промышленная территория получила новую функцию. Это уже не заводская окраина, а пространство для бизнеса, дизайна, еды, мероприятий и городской жизни.",
+        hint: "Квест завершён. Финальный ответ: Бутырский район и Марьина Роща интересны тем, что здесь на коротком маршруте видна смена эпох — железная дорога, заводы, тюрьма, старые городские легенды и новая креативная Москва.",
+        imageLabel: "Google Images — Флакон",
+        imageUrl: "https://www.google.com/search?tbm=isch&q=Flacon+Design+Factory+Moscow"
+      }
+    ];
+
+    let current = -1;
+    let score = 0;
+    let answered = false;
+
+    const screen = document.getElementById("screen");
+
+    function startScreen() {
+      screen.innerHTML = `
+        <div class="meta">
+          <div class="pill"><strong>Районы</strong>Бутырский + Марьина Роща</div>
+          <div class="pill"><strong>Тема</strong>Индустрия, легенды, редевелопмент</div>
+          <div class="pill"><strong>Формат</strong>6 точек, вопросы по одному</div>
+        </div>
+        <div class="intro-text">
+          <p>Сюжет: вы идёте по следам старой северной Москвы — от железной дороги и заводов до тюремных стен, районных легенд и новых креативных пространств.</p>
+          <p>После ответа откроется пояснение и подсказка следующей точки. Ссылка ведёт на Google Images, чтобы игрок мог узнать визуальный ориентир.</p>
+        </div>
+        <div class="route">
+          <span>Савёловский вокзал</span>
+          <span>Бутырская улица</span>
+          <span>Бутырская тюрьма</span>
+          <span>Хлебозавод №9</span>
+          <span>Марьина Роща</span>
+          <span>Флакон</span>
+        </div>
+        <div class="actions">
+          <button class="primary" onclick="nextQuestion()">Начать квест</button>
+        </div>
+      `;
+    }
+
+    function renderQuestion() {
+      const q = quiz[current];
+      const progress = (current / quiz.length) * 100;
+      answered = false;
+
+      screen.innerHTML = `
+        <div class="progress"><div class="bar" style="width:${progress}%"></div></div>
+        <div class="place">${q.place}</div>
+        <h2>${q.title}</h2>
+        <div class="block visible">
+          <div class="label">Как попасть сюда</div>
+          <p>${q.instruction}</p>
+        </div>
+        <div class="question">${q.question}</div>
+        <div class="options">
+          ${q.options.map((opt, i) => `<button class="option" onclick="selectAnswer(${i})">${String.fromCharCode(65 + i)}) ${opt}</button>`).join("")}
+        </div>
+        <div class="block" id="explanation">
+          <div class="label">Пояснение</div>
+          <p>${q.explanation}</p>
+          <div class="label" style="margin-top:14px;">Подсказка следующего места</div>
+          <p>${q.hint}</p>
+          <a class="hint-link" target="_blank" rel="noopener" href="${q.imageUrl}">Открыть: ${q.imageLabel}</a>
+        </div>
+        <div class="actions hidden" id="actions">
+          ${current < quiz.length - 1 ? `<button class="primary" onclick="nextQuestion()">Следующий вопрос</button>` : `<button class="primary" onclick="finishQuiz()">Показать финал</button>`}
+          <button class="secondary" onclick="restartQuiz()">Начать заново</button>
+        </div>
+        <div class="score">Вопрос ${current + 1} из ${quiz.length}</div>
+      `;
+    }
+
+    function selectAnswer(index) {
+      if (answered) return;
+      answered = true;
+
+      const q = quiz[current];
+      const buttons = Array.from(document.querySelectorAll(".option"));
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.correct) btn.classList.add("correct");
+        if (i === index && i !== q.correct) btn.classList.add("wrong");
+      });
+
+      if (index === q.correct) score++;
+      document.getElementById("explanation").classList.add("visible");
+      document.getElementById("actions").classList.remove("hidden");
+    }
+
+    function nextQuestion() {
+      current++;
+      renderQuestion();
+    }
+
+    function finishQuiz() {
+      screen.innerHTML = `
+        <div class="progress"><div class="bar" style="width:100%"></div></div>
+        <div class="place">Финал</div>
+        <h2>Что объединяло маршрут?</h2>
+        <div class="block visible">
+          <div class="label">Итог</div>
+          <p>Вы прошли путь от железной дороги и рабочих кварталов через тюремные стены, заводскую архитектуру и районные легенды к новой городской среде.</p>
+          <p>Ответ: Бутырский район и Марьина Роща показывают смену эпох Москвы — от индустриальной окраины к современным общественным и креативным пространствам.</p>
+          <p>Результат: ${score} из ${quiz.length} правильных ответов.</p>
+        </div>
+        <div class="actions">
+          <button class="primary" onclick="restartQuiz()">Пройти заново</button>
+        </div>
+      `;
+    }
+
+    function restartQuiz() {
+      current = -1;
+      score = 0;
+      answered = false;
+      startScreen();
+    }
+
+    startScreen();
+  </script>
+</body>
+</html>
